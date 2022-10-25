@@ -3,37 +3,41 @@
     <v-data-table
       :headers="headers"
       :items="payrolls"
-      sort-by="calories"
       class="elevation-1"
     >
       <template #top>
         <v-toolbar
           flat
         >
-          <v-toolbar-title>{{ title }}</v-toolbar-title>
+          <v-toolbar-title v-if="title != null">
+            {{ title }}
+          </v-toolbar-title>
           <v-divider
+            v-if="title != null"
             class="mx-4"
             inset
             vertical
           />
           <v-spacer />
-          <splitter-form :formTitle="'New payment'" />
+          <slot name="toolbar-functionality" />
         </v-toolbar>
       </template>
       <template #[`item.actions`]="{ item }">
-        <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
+        <v-btn icon @click="editItem(item)">
+          <v-icon>
+            mdi-pencil
+          </v-icon>
+        </v-btn>
+        <v-btn icon @click="addItem(item)">
+          <v-icon>
+            mdi-plus
+          </v-icon>
+        </v-btn>
+        <v-btn icon @click="deleteItem(item)">
+          <v-icon>
+            mdi-delete
+          </v-icon>
+        </v-btn>
       </template>
       <template #no-data>
         Create your first payroll payment!
@@ -52,10 +56,21 @@ export default {
       type: Array
     },
     title: {
-      type: String
+      type: String,
+      default: null
+    }
+  },
+  methods: {
+    editItem (item) {
+      this.$emit('edited', item)
+    },
+    deleteItem (item) {
+      this.$emit('deleted', item)
+    },
+    addItem (item) {
+      this.$emit('added', item)
     }
   }
-
 }
 </script>
 

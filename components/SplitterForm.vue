@@ -21,51 +21,13 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <v-row>
-              <v-col
-                cols="12"
-                sm="6"
-              >
-                Addresses
-              </v-col>
-              <v-col
-                cols="12"
-                sm="6"
-              >
-                Amount in ETH
-              </v-col>
-            </v-row>
-
-            <v-row v-for="(item,i) in items" :key="i">
-              <v-col
-                cols="12"
-                sm="6"
-              >
-                <v-text-field
-                  v-model="item.addr"
-                  single-line
-                  filled
-                />
-              </v-col>
-
-              <v-col
-                cols="12"
-                sm="6"
-              >
-                <v-text-field
-                  v-model="item.amount"
-                  single-line
-                  filled
-                />
-              </v-col>
-            </v-row>
+            <table-payments
+              :headers="headers"
+              :payrolls="items"
+              @added="addNewAddr"
+            />
           </v-container>
         </v-card-text>
-        <v-col class="text-right">
-          <v-btn @click="addNewAddr">
-            Add address
-          </v-btn>
-        </v-col>
         <v-card-actions>
           <v-spacer />
           <v-btn
@@ -96,10 +58,20 @@ export default {
   },
   data () {
     return {
+      headers: [
+        {
+          text: 'Addresses',
+          align: 'start',
+          sortable: true,
+          value: 'addr'
+        },
+        { text: 'Amount', value: 'amount', align: 'start', sortable: 'true' },
+        { text: 'Actions', value: 'actions', align: 'center', sortable: false }
+      ],
       dialog: false,
       items: [
         {
-          addr: '',
+          addr: '0x...',
           amount: 0.0
         }
       ]
