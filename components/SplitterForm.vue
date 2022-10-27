@@ -24,7 +24,9 @@
             <table-payments
               :headers="headers"
               :payrolls="items"
-              @added="addNewAddr"
+              @added="newAddr()"
+              @deleted="deleteAddr(item)"
+              @edited="editAddr(item)"
             />
           </v-container>
         </v-card-text>
@@ -78,13 +80,19 @@ export default {
     }
   },
   methods: {
-    addNewAddr () {
+    newAddr () {
       const newAddr = {
         addr: '',
         amount: 0.0
       }
 
       this.items.push(newAddr)
+    },
+    deleteAddr (item) {
+      const index = this.items.indexOf(item)
+      if (index !== -1) {
+        this.items.splice(index, 1)
+      }
     }
   }
 }
