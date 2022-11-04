@@ -2,14 +2,14 @@
   <div>
     <v-container>
       <template>
-        <table-payments :header="headers"
+        <main-table :header="headers"
         :payrolls="payrolls"
         :title="'Splitter Payments'"
         >
         <template v-slot:toolbar-functionality>
           <splitter-form :formTitle="'New payment'" />
         </template>
-      </table-payments>
+      </main-table>
       </template>
     </v-container>
   </div>

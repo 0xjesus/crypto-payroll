@@ -1,9 +1,8 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div>
     <v-data-table
       :headers="headers"
-      :items="contentsTable"
+      :items="payrolls"
       class="elevation-1"
     >
       <template #top>
@@ -21,18 +20,10 @@
           />
           <v-spacer />
           <slot name="toolbar-functionality" />
-          <v-file-input
-            accept=".csv"
-            label="Upload CSV file"
-            placeholder="Select your CSV file"
-            @change="handleFile"
-          />
           <v-btn v-if="mode == 'edit'" icon @click="mode = 'read'">
-            <v-btn icon>
-              <v-icon>
-                mdi-content-save
-              </v-icon>
-            </v-btn>
+            <v-icon>
+              mdi-content-save
+            </v-icon>
           </v-btn>
         </v-toolbar>
       </template>
@@ -103,51 +94,20 @@ export default {
     headers: {
       type: Array
     },
+    payrolls: {
+      type: Array
+    },
     title: {
       type: String,
       default: null
-    },
-    value: {
-      type: Array
     }
   },
   data () {
     return {
-      contentsTable: [],
       mode: 'read'
     }
   },
-  computed: {
-    stringJson () {
-      return JSON.stringify(this.payrolls)
-    },
-    payrolls: {
-      get () {
-        return this.value
-      },
-      set (newVal) {
-        this.contentsTable = newVal
-        this.$emit('update', newVal)
-      }
-    }
-  },
   methods: {
-    handleFile (value) {
-      const reader = new FileReader()
-      const obj = this
-      reader.readAsText(value)
-      reader.onload = () => {
-        const textFile = reader.result
-        const lines = textFile.split('\n')
-        const header = lines[0].split(',')
-        const output = lines.slice(1).map((line) => {
-          const fields = line.split(',')
-          return Object.fromEntries(header.map((h, i) => [h, fields[i]]))
-        })
-        output.pop()
-        obj.payrolls = output
-      }
-    },
     editItem (item) {
       this.mode = 'edit'
     },
@@ -157,13 +117,10 @@ export default {
     addItem () {
       this.$emit('added')
     }
-  },
-  destroy () {
-    this.mode = 'read'
   }
 }
 </script>
 
-<style lang="scss" scoped>
+  <style lang="scss" scoped>
 
-</style>
+  </style>

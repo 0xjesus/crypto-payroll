@@ -23,11 +23,11 @@
           <v-container>
             <table-payments
               :headers="headers"
-              :payrolls="items"
-              @added="newAddr()"
-              @deleted="deleteAddr(item)"
-              @edited="editAddr(item)"
-            />
+              v-model="items"
+              @added="newAddr"
+              @deleted="deleteAddr"
+            >
+          </table-payments>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -65,7 +65,7 @@ export default {
           text: 'Addresses',
           align: 'start',
           sortable: true,
-          value: 'addr'
+          value: 'address'
         },
         { text: 'Amount', value: 'amount', align: 'start', sortable: 'true' },
         { text: 'Actions', value: 'actions', align: 'center', sortable: false }
@@ -82,7 +82,7 @@ export default {
   methods: {
     newAddr () {
       const newAddr = {
-        addr: '',
+        address: '0x...',
         amount: 0.0
       }
 
