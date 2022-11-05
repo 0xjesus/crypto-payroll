@@ -25,7 +25,9 @@
             accept=".csv"
             label="Upload CSV file"
             placeholder="Select your CSV file"
+            clearable
             @change="handleFile"
+            @click:clear="clearState"
           />
           <v-btn v-if="mode == 'edit'" icon @click="mode = 'read'">
             <v-btn icon>
@@ -84,7 +86,7 @@
             mdi-plus
           </v-icon>
         </v-btn>
-        <v-btn icon :disabled="payrolls.length == 1" @click="deleteItem(item)">
+        <v-btn icon :disabled="items.length == 1" @click="deleteItem(item)">
           <v-icon>
             mdi-delete
           </v-icon>
@@ -98,6 +100,7 @@
 </template>
 
 <script>
+
 export default {
   props: {
     headers: {
@@ -107,32 +110,30 @@ export default {
       type: String,
       default: null
     },
-    value: {
+    items: {
       type: Array
     }
   },
   data () {
     return {
       contentsTable: [],
-      mode: 'read'
+      mode: 'read',
+      cleared: false
     }
   },
-  computed: {
-    stringJson () {
-      return JSON.stringify(this.payrolls)
-    },
-    payrolls: {
-      get () {
-        return this.value
-      },
-      set (newVal) {
-        this.contentsTable = newVal
-        this.$emit('update', newVal)
-      }
-    }
+  fetch () {
+    this.contentsTable = [...this.items]
   },
   methods: {
+    clearState () {
+      this.cleared = true
+      this.contentsTable = [{
+        address: '0x...',
+        amount: 0.0
+      }]
+    },
     handleFile (value) {
+      if (this.cleared === true) { return }
       const reader = new FileReader()
       const obj = this
       reader.readAsText(value)
@@ -145,7 +146,7 @@ export default {
           return Object.fromEntries(header.map((h, i) => [h, fields[i]]))
         })
         output.pop()
-        obj.payrolls = output
+        obj.contentsTable = output
       }
     },
     editItem (item) {

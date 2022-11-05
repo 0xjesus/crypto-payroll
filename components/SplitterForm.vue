@@ -23,7 +23,7 @@
           <v-container>
             <table-payments
               :headers="headers"
-              v-model="items"
+              :items="items"
               @added="newAddr"
               @deleted="deleteAddr"
             >
@@ -73,7 +73,7 @@ export default {
       dialog: false,
       items: [
         {
-          addr: '0x...',
+          address: '0x...',
           amount: 0.0
         }
       ]
