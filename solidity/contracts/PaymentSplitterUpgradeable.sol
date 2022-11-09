@@ -133,8 +133,8 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable, Ownabl
      * @dev Getter for the amount of payee's releasable Ether.
      */
     function releasable(address account) public view returns (uint256) {
-        uint256 totalReceived = address(this).balance + totalReleased();
-        return _pendingPayment(account, totalReceived, released(account));
+        // uint256 totalReceived = address(this).balance + totalReleased();
+        return _pendingPayment(account, released(account));
     }
 
     /**
@@ -142,8 +142,8 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable, Ownabl
      * IERC20 contract.
      */
     function releasable(IERC20Upgradeable token, address account) public view returns (uint256) {
-        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
-        return _pendingPayment(account, totalReceived, released(token, account));
+        // uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
+        return _pendingPayment(account, released(token, account));
     }
 
     /**
@@ -169,9 +169,9 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable, Ownabl
      * @dev Triggers a call for each account to release its pending payments. Shake all payments with one call. 
      */
     function releaseAllPayments() public onlyOwner virtual{
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
-        for(uint i = 0; i <_payees[i].length; i++){
-            release(_payees[i]);
+        require(_payees.length > 0, "No payees added");
+        for(uint i = 0; i < _payees.length; i++){
+            release(payable(_payees[i]));
         }
     }
 
@@ -179,8 +179,7 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable, Ownabl
      * @dev ERC20 overloading function to Trigger a call for each account to release its pending payments. Shake all payments with one call. 
      */
     function releaseAllPayments(IERC20Upgradeable token) public onlyOwner virtual{
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
-        for(uint i = 0; i <_payees[i].length; i++){
+        for(uint i = 0; i < _payees.length; i++){
             release(token, _payees[i]);
         }
     }
@@ -210,7 +209,6 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable, Ownabl
      */
     function _pendingPayment(
         address account,
-        uint256 totalReceived,
         uint256 alreadyReleased
     ) private view returns (uint256) {
         return _shares[account] - alreadyReleased;
