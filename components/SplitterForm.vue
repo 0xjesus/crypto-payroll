@@ -2,18 +2,36 @@
   <div>
     <v-dialog
       v-model="dialog"
-      max-width="900px"
+      min-width="900px"
+      max-width="auto"
     >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          light
-          class="mb-2"
-          v-bind="attrs"
-          v-on="on"
-        >
-          New Payment
-        </v-btn>
+      <template #activator="{ on: dialog }">
+        <v-tooltip v-if="!isAuth" bottom>
+          <template #activator="{ on }">
+            <div v-on="{...on, ...dialog}">
+              <v-btn
+                disabled
+                color="primary"
+                light
+                class="mb-2 myClass"
+              >
+                New Payment
+              </v-btn>
+            </div>
+          </template>
+          <span>Connect your wallet before submitting transactions</span>
+        </v-tooltip>
+        <template>
+          <v-btn
+            v-show="isAuth"
+            color="primary"
+            light
+            class="mb-2 myClass"
+            v-on="dialog"
+          >
+            New Payment
+          </v-btn>
+        </template>
       </template>
       <v-card>
         <v-card-title>
@@ -25,9 +43,9 @@
               :headers="headers"
               :items="items"
               @added="newAddr"
+              @bulk="bulkAdd"
               @deleted="deleteAddr"
-            >
-          </table-payments>
+            />
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -42,8 +60,17 @@
           <v-btn
             color="blue darken-1"
             text
+            :disabled="items.length == 0"
+            @click="createSplitter()"
           >
             Create
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="test()"
+          >
+            Test
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -52,6 +79,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   props: {
     formTitle: {
@@ -72,14 +101,42 @@ export default {
       ],
       dialog: false,
       items: [
-        {
-          address: '0x...',
-          amount: 0.0
-        }
       ]
     }
   },
+  computed: {
+    ...mapGetters({
+      isAuth: 'authWallet/isAuth'
+    })
+  },
   methods: {
+    async test () {
+      // console.log(this.$etherToWei(80))
+      const contractInstance = await this.$PSHandler()
+      const res = await contractInstance.connect(await this.$MeSigner())._splitters_counter()
+      this.$notifier.showMessage({ toastContent: res, toastColor: 'success' })
+    /*       this.$nuxt.$loading.start()
+      setTimeout(() => this.$nuxt.$loading.finish(), 200)
+      this.$notifier.showMessage({ toastContent: 'Splitter created successfully', toastColor: 'info' }) */
+    },
+    async createSplitter () {
+      const obj = this
+      const payees = this.items.map(function (el) { return el.address })
+      const amount = this.items.map(function (el) { return obj.$etherToWei(el.amount) })
+      try {
+        this.$nuxt.$loading.start()
+        const contractInstance = await this.$PSHandler()
+        await contractInstance.connect(await this.$MeSigner()).createSplitter(payees, amount)
+        this.$nuxt.$loading.finish()
+        this.$notifier.showMessage({ toastContent: 'Transactions submitted successfully', toastColor: 'success' })
+      } catch (error) {
+        this.$nuxt.$loading.finish()
+        this.$notifier.showMessage({ toastContent: error, toastColor: 'error' })
+      }
+    },
+    bulkAdd (objects) {
+      this.items = this.items.concat(objects)
+    },
     newAddr () {
       const newAddr = {
         address: '0x...',
@@ -98,6 +155,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
+<style lang="css" scoped>
+.myClass:focus::before {
+  opacity: 0 !important;
+}
 </style>

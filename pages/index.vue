@@ -3,7 +3,7 @@
     <v-container>
       <template>
         <main-table :header="headers"
-        :payrolls="payrolls"
+        :payrolls="initialPayrolls"
         :title="'Splitter Payments'"
         >
         <template v-slot:toolbar-functionality>
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   data: () => ({
     dialog: false,
@@ -52,11 +54,13 @@ export default {
   }),
 
   computed: {
+    ...mapGetters({
+      initialPayrolls: 'userSplitters/initialPayrolls'
+    }),
     formTitle () {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
     }
   },
-
   watch: {
     dialog (val) {
       val || this.close()
@@ -65,17 +69,7 @@ export default {
       val || this.closeDelete()
     }
   },
-
-  created () {
-    this.initialize()
-  },
-
   methods: {
-    initialize () {
-      this.payrolls = [
-      ]
-    },
-
     editItem (item) {
       this.editedIndex = this.payrolls.indexOf(item)
       this.editedItem = Object.assign({}, item)

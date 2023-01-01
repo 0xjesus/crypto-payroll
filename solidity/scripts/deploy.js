@@ -8,12 +8,10 @@ const { ethers } = require('hardhat')
 
 async function main () {
   const PSHandler = await ethers.getContractFactory('PSHandler')
-  const PSplitter = await ethers.getContractFactory('PSplitter')
   const PSHandlerInstance = await PSHandler.deploy()
-  await PSHandlerInstance.deployed()
-
-  console.log('PSHandler:', PSHandler.address)
-  console.log('PSplitter:', PSplitter.address)
+  const res = await PSHandlerInstance.deployed()
+  console.log('PSHandler:', res.address)
+  await PSHandlerInstance.initialize()
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -1,9 +1,10 @@
 <template>
   <v-app light>
-    <app-bar/>
+    <app-bar />
     <v-main>
-        <Nuxt />
+      <Nuxt />
     </v-main>
+    <toast-message />
     <v-footer
       :absolute="!fixed"
       app

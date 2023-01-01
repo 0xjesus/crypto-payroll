@@ -87,6 +87,7 @@
 
 <script>
 import { ethers } from 'ethers'
+import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
@@ -136,11 +137,21 @@ export default {
     })
   },
   methods: {
+    ...mapActions({
+      login: 'authWallet/logInlogOut',
+      getUserSplitters: 'userSplitters/getUserSplitters'
+    }),
     async connectWallet () {
-      await this.provider.send('eth_requestAccounts', [])
-      const signer = await this.provider.getSigner()
-      this.currentAccount = await signer.getAddress()
-      this.currentSigner = signer
+      try {
+        await this.provider.send('eth_requestAccounts', [])
+        const signer = await this.provider.getSigner()
+        this.currentAccount = await signer.getAddress()
+        this.currentSigner = signer
+        this.login()
+        this.getUserSplitters(this.currentAccount)
+      } catch (error) {
+        this.$notifier.showMessage({ toastContent: error, toastColor: 'error' })
+      }
     },
     goto () {
       this.$router.push('/')

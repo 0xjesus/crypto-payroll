@@ -3,7 +3,7 @@
   <div>
     <v-data-table
       :headers="headers"
-      :items="contentsTable"
+      :items="computedContents"
       class="elevation-1"
     >
       <template #top>
@@ -65,7 +65,7 @@
                     mdi-plus
                   </v-icon>
                 </v-btn>
-                <v-btn icon @click="deleteItem(item)">
+                <v-btn icon :disabled="items.length == 1" @click="deleteItem(item)">
                   <v-icon>
                     mdi-delete
                   </v-icon>
@@ -121,19 +121,24 @@ export default {
       cleared: false
     }
   },
-  fetch () {
-    this.contentsTable = [...this.items]
+  computed: {
+    computedContents () {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      this.contentsTable = [...this.items]
+      return this.contentsTable
+    }
   },
   methods: {
     clearState () {
       this.cleared = true
-      this.contentsTable = [{
-        address: '0x...',
-        amount: 0.0
-      }]
+      const clearContents = []
+      this.$emit('bulk', clearContents)
     },
     handleFile (value) {
-      if (this.cleared === true) { return }
+      if (this.cleared === true) {
+        this.cleared = false
+        return
+      }
       const reader = new FileReader()
       const obj = this
       reader.readAsText(value)
@@ -146,8 +151,11 @@ export default {
           return Object.fromEntries(header.map((h, i) => [h, fields[i]]))
         })
         output.pop()
-        obj.contentsTable = output
+        obj.emitBulk(output)
       }
+    },
+    emitBulk (objs) {
+      this.$emit('bulk', objs)
     },
     editItem (item) {
       this.mode = 'edit'
@@ -161,6 +169,7 @@ export default {
   },
   destroy () {
     this.mode = 'read'
+    this.cleared = true
   }
 }
 </script>
